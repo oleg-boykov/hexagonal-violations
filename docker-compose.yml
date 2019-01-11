@@ -1,0 +1,79 @@
+version: "3"
+services:
+  web:
+    image: nginx:stable
+    ports:
+      - 127.0.0.1:8000:80
+    volumes:
+      - ./:/var/www/violations
+      - ./docker/web/api.conf:/etc/nginx/conf.d/api.conf:ro
+    networks:
+      default:
+        aliases:
+          - test.violations.dev.loc
+          - api.violations.dev.loc
+      main:
+        ipv4_address: 172.22.0.99
+
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+      MYSQL_DATABASE: api
+    volumes:
+      - ./docker/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      default:
+        aliases:
+          - vdb
+
+  api:
+    build:
+     context: ./docker/api
+     args:
+       USERID: $UID
+    user: $UID
+    env_file:
+      - .env
+    volumes:
+      - ./:/var/www/violations:cached
+    networks:
+      default:
+        aliases:
+            - violations_api
+      main:
+        aliases:
+            - violations_api
+
+  api.test:
+    build:
+     context: ./docker/test-api
+     args:
+       USERID: $UID
+    user: $UID
+    env_file:
+      - test.env
+    volumes:
+      - ./:/var/www/violations:cached
+    #networks:
+      #- default
+    command: "php bin/console server:run 127.0.0.1:8000"
+    networks:
+      default:
+        aliases:
+            - violations_api.test
+      main:
+        aliases:
+            - violations_api
+
+networks:
+  default:
+      ipam:
+          config:
+              - subnet: 172.55.0.0/16
+  main:
+    external:
+      name: new_test_default

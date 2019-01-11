@@ -1,0 +1,2 @@
+services:
+    App\Domain\Repository\SupportRepositoryInterface: '@App\Infrastructure\Repository\Stub\SupportRepository'

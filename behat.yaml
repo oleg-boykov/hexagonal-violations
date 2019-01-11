@@ -1,0 +1,19 @@
+default:
+    suites:
+        default:
+            contexts:
+                - FeatureContext: ~
+                - WebApiContext:
+                    - 'http://127.0.0.1:8000'
+                    - '%%jwt.secret%%'
+                    - '%%jwt.alg%%'
+                    #- 'http://test.violations.dev.loc'
+                - ViolationsContext:
+                    em: '@doctrine.orm.entity_manager'
+    extensions:
+        Behat\Symfony2Extension:
+            kernel:
+                env:   test
+                debug: true
+                path: src/Kernel.php
+                class: App\Kernel

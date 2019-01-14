@@ -2,42 +2,26 @@
 
 namespace App\Presentation\Http\Controller;
 
-use App\Application\RegisterViolationDTO;
-use App\Application\ViolationRegistry;
-use App\Domain\Repository\RuleRepositoryInterface;
-use App\Domain\Repository\ViolationRepositoryInterface;
+use App\Application\Command\CreateViolationCommand;
+use App\Application\Command\DeleteViolationCommand;
+use App\Application\Command\ResolveViolationCommand;
+use App\Application\Query\GetAllRulesQuery;
+use App\Application\Query\GetFineRecommendationQuery;
 use App\Presentation\Http\Assembler\FineRecommendationAssembler;
 use App\Presentation\Http\Assembler\ViolationAssembler;
-use App\Presentation\Http\DTO\FineRecommendationDTO;
 use App\Presentation\Http\DTO\ResponseDTO;
 use App\Presentation\Http\DTO\ViolationQuery\QueryDTO;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class DefaultController
 {
-    /**
-     * @var RuleRepositoryInterface
-     */
-    private $ruleRepository;
-
-    /**
-     * @var ViolationRepositoryInterface
-     */
-    private $violationRepository;
-
-    /**
-     * @var ViolationRegistry
-     */
-    private $violationRegistry;
-
     /**
      * @var SerializerInterface
      */
@@ -48,17 +32,25 @@ class DefaultController
      */
     private $em;
 
+    /**
+     * @var MessageBusInterface
+     */
+    private $commandBus;
+
+    /**
+     * @var MessageBusInterface
+     */
+    private $queryBus;
+
     public function __construct(
-        RuleRepositoryInterface $ruleRepository,
-        ViolationRegistry $violationRegistry,
-        ViolationRepositoryInterface $violationRepository,
+        MessageBusInterface $commandBus,
+        MessageBusInterface $queryBus,
         SerializerInterface $serializer,
         EntityManagerInterface $em
     ) {
-        $this->ruleRepository = $ruleRepository;
-        $this->violationRegistry = $violationRegistry;
-        $this->violationRepository = $violationRepository;
         $this->serializer = $serializer;
+        $this->commandBus = $commandBus;
+        $this->queryBus = $queryBus;
         $this->em = $em;
     }
 
@@ -79,7 +71,7 @@ class DefaultController
     {
         return JsonResponse::fromJsonString(
             $this->serializer->serialize(
-                (new ResponseDTO())->setData(['support_rules' => $this->ruleRepository->findAll()]),
+                (new ResponseDTO())->setData(['support_rules' => $this->queryBus->dispatch(new GetAllRulesQuery())]),
                 'json'
             )
         );
@@ -91,12 +83,12 @@ class DefaultController
      * @param ViolationAssembler $assembler
      * @return JsonResponse
      */
-    public function getViolations(Request $request, ViolationAssembler $assembler, ValidatorInterface $validator): JsonResponse
+    public function getViolations(Request $request, ViolationAssembler $assembler): JsonResponse
     {
         $queryDto = QueryDTO::fromRequest($request);
         $query = $queryDto->toQuery();
 
-        $result = $this->violationRepository->findByQuery($query);
+        $result = $this->queryBus->dispatch($query);
 
         $response = (new ResponseDTO())->setData(
             [
@@ -116,13 +108,13 @@ class DefaultController
     public function postViolation(
         Request $request,
         UserInterface $user,
-        FineRecommendationAssembler $fileAssembler,
+        FineRecommendationAssembler $fineAssembler,
         ViolationAssembler $violationAssembler
     ): JsonResponse {
-        /** @var RegisterViolationDTO $dto */
-        $dto = $this->serializer->deserialize($request->getContent(), RegisterViolationDTO::class, 'json');
-        $dto->qualityManagerId = $user->getUsername();
-        $result = $this->violationRegistry->register($dto);
+        /** @var CreateViolationCommand $command */
+        $command = $this->serializer->deserialize($request->getContent(), CreateViolationCommand::class, 'json');
+        $command->setQualityManager($user->getUsername());
+        $result = $this->commandBus->dispatch($command);
         if ($result->hasErrors()) {
             return JsonResponse::fromJsonString(
                 $this->serializer->serialize(
@@ -133,9 +125,9 @@ class DefaultController
 
         }
         $this->em->flush();
-        $recommendation = $this->violationRegistry->getFineRecommendation($result->getViolation());
+        $recommendation = $this->queryBus->dispatch(new GetFineRecommendationQuery($result->getViolation()));
         if ($recommendation) {
-            $data = ['fine' => $fileAssembler->convertToDto($recommendation)];
+            $data = ['fine' => $fineAssembler->convertToDto($recommendation)];
         } else {
             $data = ['violation' => $violationAssembler->convertToDto($result->getViolation())];
         }
@@ -157,18 +149,13 @@ class DefaultController
     public function resolveViolation(Request $request, ?int $id, ViolationAssembler $assembler): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $violation = $this->violationRepository->find($id);
+
+        $violation = $this->commandBus->dispatch(new ResolveViolationCommand($id, $data['resolved'] == 1));
         if (!$violation) {
             throw new NotFoundHttpException();
         }
-        if (isset($data['resolved'])) {
-            if ($data['resolved'] == 1) {
-                $violation->resolve();
-            } else {
-                $violation->unresolve();
-            }
-            $this->em->flush();
-        }
+
+        $this->em->flush();
 
         return JsonResponse::fromJsonString(
             $this->serializer->serialize(
@@ -183,7 +170,7 @@ class DefaultController
      */
     public function deleteViolation(?int $id): JsonResponse
     {
-        $this->violationRegistry->delete($id);
+        $this->commandBus->dispatch(new DeleteViolationCommand($id));
         $this->em->flush();
 
         return JsonResponse::fromJsonString(

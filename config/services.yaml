@@ -16,6 +16,9 @@ services:
         public: false       # Allows optimizing the container by removing unused services; this also means
                             # fetching services directly from the container via $container->get() won't work.
                             # The best practice is to be explicit about your dependencies anyway.
+        bind:
+            $commandBus: '@messenger.bus.commands'
+            $queryBus: '@messenger.bus.queries'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -32,6 +35,18 @@ services:
     App\Presentation\Http\Controller\:
         resource: '../src/Presentation/Http/Controller'
         tags: ['controller.service_arguments']
+
+    command_handlers:
+        namespace: App\Application\CommandHandler\
+        resource: '%kernel.project_dir%/src/Application/CommandHandler/*Handler.php'
+        tags:
+            - { name: messenger.message_handler, bus: messenger.bus.commands }
+
+    query_handlers:
+        namespace: App\Application\QueryHandler\
+        resource: '%kernel.project_dir%/src/Application/QueryHandler/*Handler.php'
+        tags:
+            - { name: messenger.message_handler, bus: messenger.bus.queries }
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

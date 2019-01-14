@@ -11,7 +11,7 @@ App\Presentation\Http\DTO\ViolationQuery\QueryDTO:
         filters:
             - Valid: ~
 
-App\Application\RegisterViolationDTO:
+App\Application\Command\CreateViolationCommand:
     properties:
         qualityManagerId:
             - Range:

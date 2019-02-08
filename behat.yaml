@@ -10,6 +10,8 @@ default:
                     #- 'http://test.violations.dev.loc'
                 - ViolationsContext:
                     em: '@doctrine.orm.entity_manager'
+                - SuggestionsContext:
+                    em: '@doctrine.orm.entity_manager'
     extensions:
         Behat\Symfony2Extension:
             kernel:

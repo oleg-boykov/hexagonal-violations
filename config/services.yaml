@@ -39,6 +39,7 @@ services:
     App\Domain\Repository\RuleRepositoryInterface: '@App\Infrastructure\Repository\Doctrine\RuleRepository'
     App\Domain\Repository\ViolationRepositoryInterface: '@App\Infrastructure\Repository\Doctrine\ViolationRepository'
     App\Domain\Repository\SupportRepositoryInterface: '@App\Infrastructure\Repository\External\SupportRepository'
+    App\Domain\Repository\Suggestion\ViolationSuggestionRepositoryInterface: '@App\Infrastructure\Repository\Doctrine\ViolationSuggestionRepository'
 
     App\Presentation\EventListener\ExceptionListener:
         tags:

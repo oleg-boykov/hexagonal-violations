@@ -8,9 +8,9 @@ use App\Domain\Model\VictimType;
 use App\Domain\Model\Violation;
 use App\Domain\Repository\QualityManagerRepositoryInterface;
 use App\Domain\Repository\RuleRepositoryInterface;
+use App\Domain\Repository\Suggestion\ViolationSuggestionRepositoryInterface;
 use App\Domain\Repository\SupportRepositoryInterface;
 use App\Domain\Repository\ViolationRepositoryInterface;
-use App\Domain\Repository\ViolationSuggestionRepositoryInterface;
 use App\Domain\Service\FinePolicyInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -72,19 +72,27 @@ class ViolationRegistry
     }
 
     /**
-     * @param SuggestViolationDTO $dto
-     * @return \App\Domain\Model\ViolationSuggestion
      * @throws \Exception
      */
-    public function suggest(SuggestViolationDTO $dto)
+    public function suggest(RegisterSuggestionDTO $dto): SuggestionResultDTO
     {
-        $manager = $this->supportRepo->find($dto->managerId);
+        $errors = $this->validator->validate($dto);
+
+        if (count($errors) > 0) {
+            return new SuggestionResultDTO(null, $errors);
+        }
+        $manager = $this->supportRepo->find($dto->offeredBy);
         $violator = $this->supportRepo->find($dto->violatorId);
         $rule = $this->ruleRepo->find($dto->ruleId);
-        $violation = $manager->suggestViolation($violator, new Victim($dto->victimType, $dto->victimId), $rule, $dto->comment);
-        $this->violationSuggestionRepo->add($violation);
+        $suggestion = $manager->suggestViolation(
+            $violator,
+            new Victim($dto->victimId, new VictimType($dto->victimType)),
+            $rule,
+            $dto->comment
+        );
+        $this->violationSuggestionRepo->add($suggestion);
 
-        return $violation;
+        return new SuggestionResultDTO($suggestion);
     }
 
     public function getFineRecommendation(Violation $violation): ?FineRecommendation

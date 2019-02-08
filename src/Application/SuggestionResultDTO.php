@@ -2,17 +2,17 @@
 
 namespace App\Application;
 
-use App\Domain\Model\Violation;
+use App\Domain\Model\Suggestion\ViolationSuggestion;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
-final class RegistrationResultDTO
+final class SuggestionResultDTO
 {
-    private $violation;
+    private $suggestion;
     private $errors;
 
-    public function __construct(?Violation $violation = null, ?ConstraintViolationListInterface $errors = null)
+    public function __construct(?ViolationSuggestion $suggestion = null, ?ConstraintViolationListInterface $errors = null)
     {
-        $this->violation = $violation;
+        $this->suggestion = $suggestion;
         $this->errors = $errors;
     }
 
@@ -29,8 +29,8 @@ final class RegistrationResultDTO
         return $this->errors;
     }
 
-    public function getViolation(): ?Violation
+    public function getSuggestion(): ?ViolationSuggestion
     {
-        return $this->violation;
+        return $this->suggestion;
     }
 }

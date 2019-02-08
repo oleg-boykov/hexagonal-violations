@@ -174,9 +174,4 @@ class Violation
     {
         return $this->createdAt;
     }
-
-    public function getFineRecommendation(FinePolicyInterface $finePolicy): FineRecommendation
-    {
-
-    }
 }

@@ -8,17 +8,25 @@ use App\Domain\Repository\SupportRepositoryInterface;
 class SupportRepository implements SupportRepositoryInterface
 {
     private $supports = [
-        2 => 'John Show'
+        1 => 'Unknown',
+        2 => 'John Snow',
     ];
 
     public function find(int $id): ?Support
     {
-        return new Support($id, "Unknown", 1);
         return isset($this->supports[$id]) ? new Support($id, $this->supports[$id], 1) : null;
     }
 
     public function findByIds(array $ids): array
     {
-        return [];
+        $result = [];
+        foreach ($ids as $id) {
+            $support = isset($this->supports[$id]) ? new Support($id, $this->supports[$id], 1) : null;
+            if ($support) {
+                $result[$id] = $support;
+            }
+        }
+
+        return $result;
     }
 }

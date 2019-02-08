@@ -24,7 +24,7 @@ class SupportRepository implements SupportRepositoryInterface
             $response = json_decode($response, true);
             $supports = [];
             foreach ($response['data'] as $row) {
-                $supports[$row['id']] = new Support($row['id'], $row['full_name'], $row['hw']);
+                $supports[$row['id']] = new Support($row['id'], $row['full_name'], $row['hourlyWage']);
             }
             $this->cache->set('support_list', $supports);
         }

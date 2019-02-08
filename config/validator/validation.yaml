@@ -1,17 +1,4 @@
-App\Presentation\Http\DTO\ViolationQuery\QueryDTO:
-    properties:
-        page:
-            - Range:
-                min: 1
-                max: 1000
-        perPage:
-            - Range:
-                min: 10
-                max: 50
-        filters:
-            - Valid: ~
-
-App\Application\Command\CreateViolationCommand:
+App\Application\Command\CreateViolationComand:
     properties:
         qualityManagerId:
             - Range:
@@ -43,3 +30,34 @@ App\Application\Command\CreateViolationCommand:
                 max: 65 535
                 maxMessage: Comment is too long
 
+App\Application\RegisterSuggestionDTO:
+    properties:
+        offeredBy:
+            - Range:
+                min: 1
+                minMessage: Invalid qualityManagerId
+                invalidMessage: QualityManagerId should be a valid number.
+        violatorId:
+            - Range:
+                min: 1
+                minMessage: Invalid violatorId
+                invalidMessage: ViolatorId should be a valid number.
+        ruleId:
+            - Range:
+                min: 1
+                minMessage: Invalid ruleId
+                invalidMessage: RuleId should be a valid number.
+        victimId:
+            - Range:
+                min: 1
+                minMessage: Invalid victimId
+                invalidMessage: VictimId should be a valid number.
+        victimType:
+            - Range:
+                min: 1
+                minMessage: Invalid victimType
+                invalidMessage: VictimType should be a valid number.
+        comment:
+            - Length:
+                max: 65 535
+                maxMessage: Comment is too long

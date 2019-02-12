@@ -12,15 +12,21 @@ class SupportRepository implements SupportRepositoryInterface
 
     private $cache;
 
-    public function __construct(CacheInterface $cache)
+    private $supportsApiUrl;
+
+    public function __construct(CacheInterface $cache, string $supportsApiUrl)
     {
         $this->cache = $cache;
+        $this->supportsApiUrl = $supportsApiUrl;
     }
 
+    /**
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
     private function init()
     {
         if (!$this->cache->has('support_list')) {
-            $response = file_get_contents('http://api.speedy.dev.loc/external_api/supports');
+            $response = file_get_contents($this->supportsApiUrl);
             $response = json_decode($response, true);
             $supports = [];
             foreach ($response['data'] as $row) {

@@ -17,9 +17,9 @@ Feature: As quality manager I can get violations
           "violations":[
             {
               "id":1,
-              "violator": {"id":2, "full_name": "Unknown"},
+              "violator": {"id":2, "full_name": "John Snow"},
               "violator_id":2,
-              "violator_full_name":"Unknown",
+              "violator_full_name":"John Snow",
               "offered_by":null,
               "processed_by":null,
               "related_violations":null,

@@ -2,7 +2,8 @@
 
 namespace App\Presentation\Http\DTO\ViolationQuery;
 
-use App\Domain\Query\ViolationQuery;
+use App\Domain\Query\GetSuggestionQuery;
+use App\Domain\Query\GetViolationsQuery;
 use Symfony\Component\HttpFoundation\Request;
 
 final class QueryDTO
@@ -32,12 +33,25 @@ final class QueryDTO
         return $dto;
     }
 
-    public function toQuery(): ViolationQuery
+    public function toViolationsQuery(): GetViolationsQuery
     {
         $filters = $this->filters;
         $startDate = !empty($filters->startDate) ? \DateTime::createFromFormat('U', $filters->startDate) : null;
         $endDate = !empty($filters->endDate) ? \DateTime::createFromFormat('U', $filters->endDate) : null;
-        return new ViolationQuery(
+        return $this->toQuery(GetViolationsQuery::class, $startDate, $endDate);
+    }
+
+    public function toSuggestionsQuery(): GetSuggestionQuery
+    {
+        $filters = $this->filters;
+        $startDate = !empty($filters->startDate) ? \DateTime::createFromFormat('U', $filters->startDate) : null;
+        $endDate = !empty($filters->endDate) ? \DateTime::createFromFormat('U', $filters->endDate) : null;
+        return $this->toQuery(GetSuggestionQuery::class, $startDate, $endDate);
+    }
+
+    private function toQuery(string $queryClass, $startDate, $endDate)
+    {
+        return new $queryClass(
             $this->page,
             $this->perPage,
             $this->filters->rule,

@@ -1,4 +1,4 @@
-App\Application\Command\CreateViolationComand:
+App\Application\Command\CreateViolationCommand:
     properties:
         qualityManagerId:
             - Range:
@@ -30,7 +30,7 @@ App\Application\Command\CreateViolationComand:
                 max: 65 535
                 maxMessage: Comment is too long
 
-App\Application\RegisterSuggestionDTO:
+App\Application\Command\CreateSuggestionCommand:
     properties:
         offeredBy:
             - Range:

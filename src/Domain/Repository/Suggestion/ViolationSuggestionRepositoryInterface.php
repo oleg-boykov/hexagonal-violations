@@ -3,8 +3,8 @@
 namespace App\Domain\Repository\Suggestion;
 
 use App\Domain\Model\Suggestion\ViolationSuggestion;
+use App\Domain\Query\GetSuggestionQuery;
 use App\Domain\Query\SuggestionQueryResult;
-use App\Domain\Query\ViolationQuery;
 
 interface ViolationSuggestionRepositoryInterface
 {
@@ -12,7 +12,7 @@ interface ViolationSuggestionRepositoryInterface
 
     public function add(ViolationSuggestion $violation): void;
 
-    public function findByQuery(ViolationQuery $query): SuggestionQueryResult;
+    public function findByQuery(GetSuggestionQuery $query): SuggestionQueryResult;
 
     public function remove(ViolationSuggestion $violation): void;
 }

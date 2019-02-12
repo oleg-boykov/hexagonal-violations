@@ -16,8 +16,8 @@ class SupportTest extends TestCase
      */
     public function canSuggestViolation()
     {
-        $manager = new Support(1, 'John Dou');
-        $violator = new Support(2, 'John Snow');
+        $manager = new Support(1, 'John Dou', 1);
+        $violator = new Support(2, 'John Snow', 1);
         $victim = new Victim(1, VictimType::Order());
         $rule = new Rule(1, 'Some rule');
 

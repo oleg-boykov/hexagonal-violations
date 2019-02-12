@@ -4,7 +4,7 @@ namespace App\Infrastructure\Repository\Doctrine;
 
 use App\Domain\Model\Rule;
 use App\Domain\Model\Violation;
-use App\Domain\Query\ViolationQuery;
+use App\Domain\Query\GetViolationsQuery;
 use App\Domain\Query\ViolationQueryResult;
 use App\Domain\Repository\ViolationRepositoryInterface;
 use Doctrine\Common\Collections\Criteria;
@@ -82,7 +82,7 @@ class ViolationRepository implements ViolationRepositoryInterface
             ->getSingleScalarResult();
     }
 
-    public function findByQuery(ViolationQuery $query): ViolationQueryResult
+    public function findByQuery(GetViolationsQuery $query): ViolationQueryResult
     {
         $queryBuilder = $this
             ->repo

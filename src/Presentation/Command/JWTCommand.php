@@ -2,8 +2,6 @@
 
 namespace App\Presentation\Command;
 
-use App\Application\RegisterViolationDTO;
-use App\Application\ViolationRegistry;
 use Firebase\JWT\JWT;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -36,8 +34,6 @@ class JWTCommand extends Command
     {
         $key = "mysecret";
         $token = array(
-            //"iss" => "http://example.org",
-            //"aud" => "http://example.com",
             "uid" => $input->getArgument('uid'),
             "iat" => time(),
             "exp" => time()+3600
@@ -59,16 +55,8 @@ class JWTCommand extends Command
 
         print_r($decoded);
 
-        /*
-         NOTE: This will now be an object instead of an associative array. To get
-         an associative array, you will need to cast it as such:
-        */
-
-        $decoded_array = (array) $decoded;
         dump($decoded);
         dump(time());
-
-        // outputs multiple lines to the console (adding "\n" at the end of each line)
     }
 
 }

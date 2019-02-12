@@ -3,8 +3,8 @@
 namespace App\Infrastructure\Repository\Doctrine;
 
 use App\Domain\Model\Suggestion\ViolationSuggestion;
+use App\Domain\Query\GetSuggestionQuery;
 use App\Domain\Query\SuggestionQueryResult;
-use App\Domain\Query\ViolationQuery;
 use App\Domain\Repository\Suggestion\ViolationSuggestionRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
@@ -36,7 +36,7 @@ class ViolationSuggestionRepository implements ViolationSuggestionRepositoryInte
         $this->em->persist($violation);
     }
 
-    public function findByQuery(ViolationQuery $query): SuggestionQueryResult
+    public function findByQuery(GetSuggestionQuery $query): SuggestionQueryResult
     {
         $queryBuilder = $this
             ->repo

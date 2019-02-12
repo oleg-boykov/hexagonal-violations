@@ -2,9 +2,9 @@
 
 namespace App\Application\Command;
 
-class CreateViolationCommand
+class CreateSuggestionCommand
 {
-    private $qualityManagerId;
+    private $offeredBy;
     private $violatorId;
     private $ruleId;
     private $victimId;
@@ -13,7 +13,7 @@ class CreateViolationCommand
 
     /**
      * RegisterViolationDTO constructor.
-     * @param $qualityManagerId
+     * @param $offeredBy
      * @param $violatorId
      * @param $ruleId
      * @param $victimId
@@ -21,14 +21,14 @@ class CreateViolationCommand
      * @param $comment
      */
     public function __construct(
-        $qualityManagerId = null,
+        $offeredBy = null,
         $violatorId = null,
         $ruleId = null,
         $victimId = null,
         $victimType = null,
         string $comment = null
     ) {
-        $this->qualityManagerId = $qualityManagerId;
+        $this->offeredBy = $offeredBy;
         $this->violatorId = $violatorId;
         $this->ruleId = $ruleId;
         $this->victimId = $victimId;
@@ -37,19 +37,19 @@ class CreateViolationCommand
     }
 
     /**
-     * @param int $qualityManagerId
+     * @param int $offeredBy
      */
-    public function setQualityManager($qualityManagerId)
+    public function setOfferedBy($offeredBy)
     {
-        $this->qualityManagerId = $qualityManagerId;
+        $this->offeredBy = $offeredBy;
     }
 
     /**
-     * @return null
+     * @return int
      */
-    public function getQualityManagerId()
+    public function getOfferedBy()
     {
-        return $this->qualityManagerId;
+        return $this->offeredBy;
     }
 
     /**
@@ -77,7 +77,7 @@ class CreateViolationCommand
     }
 
     /**
-     * @return int
+     * @return null
      */
     public function getVictimType()
     {

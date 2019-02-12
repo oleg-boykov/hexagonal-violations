@@ -2,9 +2,7 @@
 
 namespace App\Tests\Model;
 
-use App\Domain\Model\QualityManager;
 use App\Domain\Model\Rule;
-use App\Domain\Model\Support;
 use App\Domain\Model\Victim;
 use App\Domain\Model\VictimType;
 use App\Domain\Model\Violation;

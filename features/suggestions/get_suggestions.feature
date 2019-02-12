@@ -6,7 +6,6 @@ Feature: As quality manager I can get suggestions
       | id | violator_id | rule_id | victim_type | victim_id | status      | comment | created_at          |
       | 1  | 2           | 1       | null        | null      | unprocessed | Hello   | 2017-01-01 00:00:00 |
     When I send a GET request to "/violation_suggestions?perPage=1&page=1"
-    Then print response
     Then the response code should be 200
     And the response should contain json:
     """

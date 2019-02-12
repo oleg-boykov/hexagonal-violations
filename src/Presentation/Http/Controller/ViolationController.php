@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class DefaultController
+class ViolationController
 {
     /**
      * @var SerializerInterface
@@ -86,7 +86,7 @@ class DefaultController
     public function getViolations(Request $request, ViolationAssembler $assembler): JsonResponse
     {
         $queryDto = QueryDTO::fromRequest($request);
-        $query = $queryDto->toQuery();
+        $query = $queryDto->toViolationsQuery();
 
         $result = $this->queryBus->dispatch($query);
 

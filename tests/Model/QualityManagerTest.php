@@ -18,7 +18,7 @@ class QualityManagerTest extends TestCase
     public function canRegisterViolation()
     {
         $manager = new QualityManager(1);
-        $violator = new Support(2, 'John Snow');
+        $violator = new Support(2, 'John Snow', 1);
         $victim = new Victim(1, VictimType::Order());
         $rule = new Rule(1, 'Some rule');
 

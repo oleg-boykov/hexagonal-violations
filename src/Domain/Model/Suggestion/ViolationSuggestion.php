@@ -54,6 +54,13 @@ class ViolationSuggestion
     /**
      * @var string
      *
+     * @ORM\Column(name="reject_comment", type="text")
+     */
+    private $rejectComment = '';
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="status", type="text")
      */
     private $status;
@@ -97,6 +104,26 @@ class ViolationSuggestion
         $this->comment = $comment;
         $this->status = Status::UNPROCESSED;
         $this->createdAt = new \DateTimeImmutable();
+    }
+
+    public function reject(int $processedBy, string $rejectComment)
+    {
+        $this->processedBy = $processedBy;
+        $this->rejectComment = $rejectComment;
+        $this->status = Status::REJECTED;
+    }
+
+    public function unprocess()
+    {
+        $this->processedBy = null;
+        $this->rejectComment = '';
+        $this->status = Status::UNPROCESSED;
+    }
+
+    public function accept(int $processedBy)
+    {
+        $this->processedBy = $processedBy;
+        $this->status = Status::ACCEPTED;
     }
 
     /**

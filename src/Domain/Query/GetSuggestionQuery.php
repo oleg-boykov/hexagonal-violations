@@ -2,7 +2,7 @@
 
 namespace App\Domain\Query;
 
-class ViolationQuery
+class GetSuggestionQuery
 {
     private $page;
     private $perPage;
@@ -12,7 +12,7 @@ class ViolationQuery
     private $endDate;
 
     /**
-     * ViolationQuery constructor.
+     * GetSuggestionQuery constructor.
      *
      * @param int $perPage
      * @param int $page

@@ -10,7 +10,7 @@ class ViolationQueryResult
 
     private $total;
 
-    public function __construct(ViolationQuery $query, iterable $violations, int $total)
+    public function __construct(GetViolationsQuery $query, iterable $violations, int $total)
     {
         $this->query = $query;
         $this->violations = $violations;
@@ -20,7 +20,7 @@ class ViolationQueryResult
     /**
      * @return mixed
      */
-    public function getQuery(): ViolationQuery
+    public function getQuery(): GetViolationsQuery
     {
         return $this->query;
     }

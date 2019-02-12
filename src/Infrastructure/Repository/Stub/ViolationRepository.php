@@ -4,7 +4,7 @@ namespace App\Infrastructure\Repository\Stub;
 
 use App\Domain\Model\Rule;
 use App\Domain\Model\Violation;
-use App\Domain\Query\ViolationQuery;
+use App\Domain\Query\GetViolationsQuery;
 use App\Domain\Query\ViolationQueryResult;
 use App\Domain\Repository\ViolationRepositoryInterface;
 
@@ -42,7 +42,7 @@ class ViolationRepository implements ViolationRepositoryInterface
         return 1;
     }
 
-    public function findByQuery(ViolationQuery $query): ViolationQueryResult
+    public function findByQuery(GetViolationsQuery $query): ViolationQueryResult
     {
         return new ViolationQueryResult($query, [], 0);
     }

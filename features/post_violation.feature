@@ -19,7 +19,7 @@ Feature: As quality manager I can post violation
       "data":{
         "violation":{
           "id":"@type:integer",
-          "violator": {"id": 2, "full_name": "Unknown"},
+          "violator": {"id": 2, "full_name": "John Snow"},
           "violator_id":2,
           "offered_by":null,
           "processed_by":null,
@@ -71,12 +71,12 @@ Feature: As quality manager I can post violation
         "fine":{
           "count":2,
           "critical":2,
-          "violator": {"id": 2, "full_name": "Unknown"},
+          "violator": {"id": 2, "full_name": "John Snow"},
           "fine_amount":1,
           "violations":[
             {
               "id":"@type:integer",
-              "violator": {"id": 2, "full_name": "Unknown"},
+              "violator": {"id": 2, "full_name": "John Snow"},
               "violator_id":2,
               "offered_by":null,
               "processed_by":null,

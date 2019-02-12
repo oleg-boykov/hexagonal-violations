@@ -2,45 +2,37 @@
 
 namespace App\Presentation\Http\Controller;
 
-use App\Application\RegisterSuggestionDTO;
-use App\Application\RegisterViolationDTO;
-use App\Application\RegistrationResultDTO;
-use App\Application\ViolationRegistry;
-use App\Domain\Repository\RuleRepositoryInterface;
-use App\Domain\Repository\Suggestion\ViolationSuggestionRepositoryInterface;
-use App\Domain\Repository\ViolationRepositoryInterface;
-use App\Presentation\Http\Assembler\FineRecommendationAssembler;
+use App\Application\Command\CreateSuggestionCommand;
+use App\Application\Command\UpdateSuggestionCommand;
 use App\Presentation\Http\Assembler\SuggestionAssembler;
-use App\Presentation\Http\Assembler\ViolationAssembler;
 use App\Presentation\Http\DTO\ResponseDTO;
-use App\Presentation\Http\DTO\SuggestionDTO;
+use App\Presentation\Http\DTO\UpdateSuggestionDTO;
 use App\Presentation\Http\DTO\ViolationQuery\QueryDTO;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class SuggestViolationController
+class SuggestionController
 {
-    /**
-     * @var ViolationRegistry
-     */
-    private $violationRegistry;
-
-    /**
-     * @var ViolationSuggestionRepositoryInterface
-     */
-    private $suggestionRepository;
-
     /**
      * @var SerializerInterface
      */
     private $serializer;
+
+    /**
+     * @var MessageBusInterface
+     */
+    private $commandBus;
+
+    /**
+     * @var MessageBusInterface
+     */
+    private $queryBus;
 
     /**
      * @var EntityManagerInterface
@@ -48,13 +40,13 @@ class SuggestViolationController
     private $em;
 
     public function __construct(
-        ViolationRegistry $violationRegistry,
-        ViolationSuggestionRepositoryInterface $suggestionRepository,
         SerializerInterface $serializer,
+        MessageBusInterface $commandBus,
+        MessageBusInterface $queryBus,
         EntityManagerInterface $em
     ) {
-        $this->violationRegistry = $violationRegistry;
-        $this->suggestionRepository = $suggestionRepository;
+        $this->commandBus = $commandBus;
+        $this->queryBus = $queryBus;
         $this->serializer = $serializer;
         $this->em = $em;
     }
@@ -69,9 +61,9 @@ class SuggestViolationController
     public function getViolationSuggestions(Request $request, SuggestionAssembler $assembler): JsonResponse
     {
         $queryDto = QueryDTO::fromRequest($request);
-        $query = $queryDto->toQuery();
+        $query = $queryDto->toSuggestionsQuery();
 
-        $result = $this->suggestionRepository->findByQuery($query);
+        $result = $this->queryBus->dispatch($query);
 
         $response = (new ResponseDTO())->setData(
             [
@@ -93,10 +85,10 @@ class SuggestViolationController
         UserInterface $user,
         SuggestionAssembler $suggestionAssembler
     ): JsonResponse {
-        /** @var RegisterSuggestionDTO $dto */
-        $dto = $this->serializer->deserialize($request->getContent(), RegisterSuggestionDTO::class, 'json');
-        $dto->offeredBy = $user->getUsername();
-        $result = $this->violationRegistry->suggest($dto);
+        /** @var CreateSuggestionCommand $command */
+        $command = $this->serializer->deserialize($request->getContent(), CreateSuggestionCommand::class, 'json');
+        $command->setOfferedBy($user->getUsername());
+        $result = $this->commandBus->dispatch($command);
         if ($result->hasErrors()) {
             return JsonResponse::fromJsonString(
                 $this->serializer->serialize(
@@ -115,6 +107,32 @@ class SuggestViolationController
                     ->setData($data)
                     ->setAlerts(["Violation suggestion has been registered."])
                 ,
+                'json'
+            )
+        );
+    }
+
+    /**
+     * @Route("/violation_suggestions/{id<\d+>}", methods={"PUT"}, name="update_suggestion")
+     */
+    public function updateSuggestion(Request $request, ?int $id, SuggestionAssembler $assembler): JsonResponse
+    {
+        /** @var UpdateSuggestionCommand $command */
+        $command = $this->serializer->deserialize($request->getContent(), UpdateSuggestionCommand::class, 'json');
+        $command->setId($id);
+        $suggestion = $this->commandBus->dispatch($command);
+
+        if (!$suggestion) {
+            throw new NotFoundHttpException();
+        }
+
+        $this->em->flush();
+
+        return JsonResponse::fromJsonString(
+            $this->serializer->serialize(
+                (new ResponseDTO())
+                    ->setData(['violation' => $assembler->convertToDto($suggestion)])
+                    ->setAlerts(['Violation has been successfully updated']),
                 'json'
             )
         );

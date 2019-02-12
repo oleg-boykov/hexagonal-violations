@@ -2,10 +2,10 @@
 
 namespace App\Application\QueryHandler;
 
-use App\Domain\Query\ViolationQuery;
+use App\Domain\Query\GetViolationsQuery;
 use App\Domain\Repository\ViolationRepositoryInterface;
 
-class ViolationHandler
+class GetViolationHandler
 {
     private $violationRepository;
 
@@ -14,7 +14,7 @@ class ViolationHandler
         $this->violationRepository = $violationRepository;
     }
 
-    public function __invoke(ViolationQuery $query)
+    public function __invoke(GetViolationsQuery $query)
     {
         return $this->violationRepository->findByQuery($query);
     }

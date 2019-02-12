@@ -10,7 +10,7 @@ class SuggestionQueryResult
 
     private $total;
 
-    public function __construct(ViolationQuery $query, iterable $suggestions, int $total)
+    public function __construct(GetSuggestionQuery $query, iterable $suggestions, int $total)
     {
         $this->query = $query;
         $this->suggestions = $suggestions;
@@ -20,7 +20,7 @@ class SuggestionQueryResult
     /**
      * @return mixed
      */
-    public function getQuery(): ViolationQuery
+    public function getQuery(): GetSuggestionQuery
     {
         return $this->query;
     }

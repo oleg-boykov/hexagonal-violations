@@ -41,6 +41,7 @@ class SuggestionsContext implements Context
             'offered_by' => 1,
             'status' => 'unprocessed',
             'comment' => '',
+            'reject_comment' => '',
         ];
         foreach ($table->getColumnsHash() as $row) {
             $row = array_filter($row, function ($value) { return $value !== "null"; });
